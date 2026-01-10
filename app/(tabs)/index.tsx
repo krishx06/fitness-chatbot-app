@@ -5,19 +5,29 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
+import { useThemeContext } from '@/context/ThemeContext';
+import { useThemeColor } from '@/hooks/use-theme-color';
 import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { theme } = useThemeContext();
   const [personality, setPersonality] = useState<
     'encourager' | 'creative' | 'finisher'
   >('encourager');
 
+  const backgroundColor = useThemeColor({}, 'background');
+  const cardColor = useThemeColor({}, 'card');
+  const textColor = useThemeColor({}, 'text');
+  const textSecondaryColor = useThemeColor({}, 'textSecondary');
+  const borderColor = useThemeColor({}, 'border');
+  const brandColor = Colors[theme ?? 'light'].brandPrimary;
+
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <View style={styles.contentContainer}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={['top']}>
+      <View style={[styles.contentContainer, { backgroundColor }]}>
         <View style={styles.blobTopRight} />
         <View style={styles.blobBottomLeft} />
 
@@ -35,43 +45,43 @@ export default function HomeScreen() {
 
             <View style={styles.heroTextContent}>
               <ThemedText style={styles.brandName}>NextYou</ThemedText>
-              <ThemedText style={styles.heroHeadline}>
+              <ThemedText style={[styles.heroHeadline, { color: textColor }]}>
                 Discover Your Next{'\n'}Best Version
               </ThemedText>
-              <ThemedText style={styles.heroSubtitle}>
+              <ThemedText style={[styles.heroSubtitle, { color: textSecondaryColor }]}>
                 Your personal AI fitness companion
               </ThemedText>
             </View>
           </View>
 
-          <View style={styles.infoCard}>
+          <View style={[styles.infoCard, { backgroundColor: cardColor, borderColor }]}>
             <View style={styles.infoRow}>
               <View style={[styles.infoIconBox, { backgroundColor: '#DCFCE7' }]}>
                 <Ionicons name="checkmark" size={18} color="#166534" />
               </View>
               <View style={styles.infoTextContainer}>
-                <ThemedText type="defaultSemiBold" style={styles.infoTitle}>What it can do</ThemedText>
-                <ThemedText style={styles.infoDescription}>Fitness plans, wellness guidance, and consistency support.</ThemedText>
+                <ThemedText type="defaultSemiBold" style={[styles.infoTitle, { color: textColor }]}>What it can do</ThemedText>
+                <ThemedText style={[styles.infoDescription, { color: textSecondaryColor }]}>Fitness plans, wellness guidance, and consistency support.</ThemedText>
               </View>
             </View>
 
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: borderColor }]} />
 
             <View style={styles.infoRow}>
               <View style={[styles.infoIconBox, { backgroundColor: '#FEE2E2' }]}>
                 <Ionicons name="alert" size={18} color="#991B1B" />
               </View>
               <View style={styles.infoTextContainer}>
-                <ThemedText type="defaultSemiBold" style={styles.infoTitle}>What it cannot do</ThemedText>
-                <ThemedText style={styles.infoDescription}>Diagnose injuries, prescribe meds, or provide medical advice.</ThemedText>
+                <ThemedText type="defaultSemiBold" style={[styles.infoTitle, { color: textColor }]}>What it cannot do</ThemedText>
+                <ThemedText style={[styles.infoDescription, { color: textSecondaryColor }]}>Diagnose injuries, prescribe meds, or provide medical advice.</ThemedText>
               </View>
             </View>
           </View>
 
           <View style={styles.section}>
-            <ThemedText type="defaultSemiBold" style={styles.sectionHeader}>
+            <ThemedText type="defaultSemiBold" style={[styles.sectionHeader, { color: textColor }]}>
               Choose Your Personality{'\n'}
-              <ThemedText style={styles.sectionSubHeader}>
+              <ThemedText style={[styles.sectionSubHeader, { color: textSecondaryColor }]}>
                 Select the personality that best matches your fitness journey
               </ThemedText>
             </ThemedText>
@@ -84,6 +94,10 @@ export default function HomeScreen() {
                 active={personality === 'encourager'}
                 onPress={() => setPersonality('encourager')}
                 color={Colors.light.brandPrimary}
+                cardColor={cardColor}
+                borderColor={borderColor}
+                textColor={textColor}
+                subTextColor={textSecondaryColor}
               />
               <PersonalityCard
                 title="Creative Explorer"
@@ -91,7 +105,11 @@ export default function HomeScreen() {
                 icon="bulb"
                 active={personality === 'creative'}
                 onPress={() => setPersonality('creative')}
-                color="#F59E0B" 
+                color="#F59E0B"
+                cardColor={cardColor}
+                borderColor={borderColor}
+                textColor={textColor}
+                subTextColor={textSecondaryColor}
               />
               <PersonalityCard
                 title="Goal Finisher"
@@ -99,14 +117,18 @@ export default function HomeScreen() {
                 icon="trophy"
                 active={personality === 'finisher'}
                 onPress={() => setPersonality('finisher')}
-                color={Colors.light.brandSecondary} 
+                color={Colors.light.brandSecondary}
+                cardColor={cardColor}
+                borderColor={borderColor}
+                textColor={textColor}
+                subTextColor={textSecondaryColor}
               />
             </View>
           </View>
           <View style={{ height: 120 }} />
         </ScrollView>
 
-        <View style={styles.bottomContainer}>
+        <View style={[styles.bottomContainer, { backgroundColor, borderTopColor: borderColor }]}>
           <Pressable
             onPress={() => router.push('/chat')}
             style={styles.ctaButton}
@@ -127,6 +149,10 @@ function PersonalityCard({
   active,
   onPress,
   color,
+  cardColor,
+  borderColor,
+  textColor,
+  subTextColor,
 }: {
   title: string;
   subtitle: string;
@@ -134,19 +160,24 @@ function PersonalityCard({
   active: boolean;
   onPress: () => void;
   color: string;
+  cardColor: string;
+  borderColor: string;
+  textColor: string;
+  subTextColor: string;
 }) {
   return (
     <Pressable
       onPress={onPress}
       style={[
         styles.pCard,
+        { backgroundColor: cardColor, borderColor },
         active && styles.pCardActive,
-        active && { borderColor: color, backgroundColor: '#FDFBFF' }
+        active && { borderColor: color, backgroundColor: cardColor === '#1C1F23' ? '#2A2F35' : '#FDFBFF' }
       ]}
     >
       <View style={[
         styles.pIconBox,
-        { backgroundColor: active ? color : '#F5F3FF' } 
+        { backgroundColor: active ? color : (cardColor === '#1C1F23' ? '#2A2F35' : '#F5F3FF') }
       ]}>
         <Ionicons
           name={icon}
@@ -155,8 +186,8 @@ function PersonalityCard({
         />
       </View>
       <View style={styles.pContent}>
-        <ThemedText style={[styles.pTitle, active && { color: color }]}>{title}</ThemedText>
-        <ThemedText style={styles.pSubtitle}>{subtitle}</ThemedText>
+        <ThemedText style={[styles.pTitle, { color: textColor }, active && { color: color }]}>{title}</ThemedText>
+        <ThemedText style={[styles.pSubtitle, { color: subTextColor }]}>{subtitle}</ThemedText>
       </View>
       {active && (
         <Ionicons name="radio-button-on" size={24} color={color} />
@@ -171,12 +202,12 @@ function PersonalityCard({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: '#FFFFFF',
   },
   contentContainer: {
     flex: 1,
-    backgroundColor: '#FAFAFA', 
-    overflow: 'hidden', 
+    backgroundColor: '#FAFAFA',
+    overflow: 'hidden',
     position: 'relative',
   },
 
@@ -193,15 +224,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -50,
     left: -100,
-    width: 300, 
+    width: 300,
     height: 300,
     borderRadius: 999,
-    backgroundColor: 'rgba(91, 46, 255, 0.05)', 
+    backgroundColor: 'rgba(91, 46, 255, 0.05)',
   },
 
   scrollContent: {
     padding: Spacing.xl,
-    paddingTop: 20, 
+    paddingTop: 20,
   },
 
   hero: {
@@ -221,7 +252,7 @@ const styles = StyleSheet.create({
   heroLogo: {
     width: 100,
     height: 100,
-    borderRadius: 30, 
+    borderRadius: 30,
   },
   heroTextContent: {
     alignItems: 'center',
@@ -248,7 +279,7 @@ const styles = StyleSheet.create({
   },
 
   infoCard: {
-    backgroundColor: '#F5F3FF', 
+    backgroundColor: '#F5F3FF',
     borderRadius: 24,
     padding: Spacing.lg,
     marginBottom: Spacing.xl,
@@ -258,7 +289,7 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 4,
     borderWidth: 1,
-    borderColor: 'rgba(91, 46, 255, 0.15)', 
+    borderColor: 'rgba(91, 46, 255, 0.15)',
   },
   infoRow: {
     flexDirection: 'row',
@@ -298,7 +329,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 18,
     color: '#0F172A',
-    marginLeft: 4, 
+    marginLeft: 4,
   },
   personalityContainer: {
     gap: Spacing.md,
@@ -309,8 +340,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDFBFF',
     padding: 16,
     borderRadius: 20,
-    borderWidth: 1, 
-    borderColor: '#E2E8F0', 
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     gap: 16,
     shadowColor: '#64748B',
     shadowOffset: { width: 0, height: 2 },
@@ -320,7 +351,7 @@ const styles = StyleSheet.create({
   },
   pCardActive: {
     shadowOpacity: 0.1,
-    transform: [{ scale: 1.01 }], 
+    transform: [{ scale: 1.01 }],
   },
   pIconBox: {
     width: 48,
@@ -351,28 +382,28 @@ const styles = StyleSheet.create({
     right: 0,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.md,
-    paddingBottom: Spacing.lg, 
-    backgroundColor: '#FFFFFF', 
+    paddingBottom: Spacing.lg,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#F1F5F9',
   },
   ctaButton: {
     backgroundColor: '#1a0d37ff',
-    height: 52,   
+    height: 52,
     borderRadius: 26,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
     shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 4 }, 
-    shadowOpacity: 0.2, 
-    shadowRadius: 8, 
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     elevation: 4,
   },
   ctaText: {
     color: '#FFF',
-    fontSize: 16, 
+    fontSize: 16,
     fontWeight: '600',
   },
   sectionSubHeader: {

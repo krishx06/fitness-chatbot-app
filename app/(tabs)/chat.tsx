@@ -15,6 +15,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
+import { useThemeContext } from '@/context/ThemeContext';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 type Message = {
   id: string;
@@ -43,8 +45,8 @@ const getInitialMessage = (p: Personality): Message => ({
     p === 'creative'
       ? 'Let’s keep things fun and flexible'
       : p === 'finisher'
-      ? 'Let’s stay focused and get results'
-      : 'I’m here to support you every step',
+        ? 'Let’s stay focused and get results'
+        : 'I’m here to support you every step',
 });
 
 export default function ChatScreen() {
@@ -63,6 +65,18 @@ export default function ChatScreen() {
   const [personalityVisible, setPersonalityVisible] = useState(false);
   const [xpInfoVisible, setXpInfoVisible] = useState(false);
   const [xp, setXp] = useState(0);
+
+  const { theme } = useThemeContext();
+  const backgroundColor = useThemeColor({}, 'background');
+  const textColor = useThemeColor({}, 'text');
+  const cardColor = useThemeColor({}, 'card');
+  const borderColor = useThemeColor({}, 'border');
+  const textSecondaryColor = useThemeColor({}, 'textSecondary');
+  const brandColor = Colors[theme ?? 'light'].brandPrimary;
+
+  const aiBubbleColor = theme === 'dark' ? '#22262B' : '#F3E8FF';
+  const inputBackgroundColor = theme === 'dark' ? '#1C1F23' : '#FFFFFF';
+  const placeholderColor = theme === 'dark' ? '#9BA1A6' : '#94A3B8';
 
   const isInputValid = input.trim().length > 0;
 
@@ -103,8 +117,8 @@ export default function ChatScreen() {
       type === 'warmup'
         ? 'Here’s a quick warm-up:\n• Neck rolls\n• Arm swings\n• Light stretches'
         : type === 'beginner'
-        ? 'Beginner plan:\n• 20 min walk\n• Bodyweight squats\n• Stretching'
-        : 'Diet tips:\n• Stay hydrated\n• Balanced meals\n• Avoid sugary snacks';
+          ? 'Beginner plan:\n• 20 min walk\n• Bodyweight squats\n• Stretching'
+          : 'Diet tips:\n• Stay hydrated\n• Balanced meals\n• Avoid sugary snacks';
 
     setMessages(prev => [
       ...prev,
@@ -141,14 +155,14 @@ export default function ChatScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.safe, { backgroundColor }]} edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
+        style={[styles.container, { backgroundColor }]}
       >
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={10}>
-            <Ionicons name="chevron-back" size={24} />
+            <Ionicons name="chevron-back" size={24} color={textColor} />
           </Pressable>
 
           <View style={styles.logoWrapper} pointerEvents="none">
@@ -160,14 +174,14 @@ export default function ChatScreen() {
 
           <View style={styles.headerRight}>
             <Pressable onPress={() => setXpInfoVisible(v => !v)}>
-              <View style={styles.xpBadge}>
+              <View style={[styles.xpBadge, { backgroundColor: theme === 'dark' ? 'rgba(124,58,237,0.2)' : '#F5F3FF' }]}>
                 <Ionicons name="flash" size={14} color="#7C3AED" />
                 <ThemedText style={styles.xpText}>{xp}</ThemedText>
               </View>
             </Pressable>
 
             <Pressable onPress={() => setMenuVisible(true)} hitSlop={10}>
-              <Ionicons name="ellipsis-horizontal" size={22} />
+              <Ionicons name="ellipsis-horizontal" size={22} color={textColor} />
             </Pressable>
           </View>
         </View>
@@ -178,7 +192,7 @@ export default function ChatScreen() {
               style={styles.backdrop}
               onPress={() => setXpInfoVisible(false)}
             />
-            <View style={styles.xpTooltip}>
+            <View style={[styles.xpTooltip, { backgroundColor: cardColor, borderColor }]}>
               <Ionicons name="flash" size={16} color="#7C3AED" />
               <ThemedText style={styles.xpTipText}>
                 You earn 1 XP for every question you ask. Stay consistent 💪
@@ -193,9 +207,9 @@ export default function ChatScreen() {
               style={styles.backdrop}
               onPress={() => setMenuVisible(false)}
             />
-            <View style={styles.menu}>
+            <View style={[styles.menu, { backgroundColor: cardColor, borderColor }]}>
               <Pressable style={styles.menuAction} onPress={handleNewChat}>
-                <Ionicons name="chatbubble-ellipses-outline" size={20} />
+                <Ionicons name="chatbubble-ellipses-outline" size={20} color={textColor} />
                 <ThemedText>New Chat</ThemedText>
               </Pressable>
 
@@ -206,7 +220,7 @@ export default function ChatScreen() {
                   setHistoryVisible(true);
                 }}
               >
-                <Ionicons name="time-outline" size={20} />
+                <Ionicons name="time-outline" size={20} color={textColor} />
                 <ThemedText>Chat History</ThemedText>
               </Pressable>
 
@@ -217,7 +231,7 @@ export default function ChatScreen() {
                   setPersonalityVisible(true);
                 }}
               >
-                <Ionicons name="options-outline" size={20} />
+                <Ionicons name="options-outline" size={20} color={textColor} />
                 <ThemedText>Change Personality</ThemedText>
               </Pressable>
             </View>
@@ -230,7 +244,7 @@ export default function ChatScreen() {
               style={styles.backdrop}
               onPress={() => setHistoryVisible(false)}
             />
-            <View style={styles.historyModal}>
+            <View style={[styles.historyModal, { backgroundColor: cardColor }]}>
               <ThemedText type="defaultSemiBold">Chat History</ThemedText>
 
               {chatHistory.length === 0 && (
@@ -259,27 +273,39 @@ export default function ChatScreen() {
               style={styles.backdrop}
               onPress={() => setPersonalityVisible(false)}
             />
-            <View style={styles.personalityModal}>
+            <View style={[styles.personalityModal, { backgroundColor: cardColor }]}>
               <PersonalityOption
                 label="Encouragement Seeker"
                 active={personality === 'encourager'}
                 onPress={() => handlePersonalityChange('encourager')}
+                borderColor={borderColor}
+                activeColor={brandColor}
+                textColor={textColor}
+                activeBackgroundColor={theme === 'dark' ? '#2E1065' : '#F5F3FF'}
               />
               <PersonalityOption
                 label="Creative Explorer"
                 active={personality === 'creative'}
                 onPress={() => handlePersonalityChange('creative')}
+                borderColor={borderColor}
+                activeColor={brandColor}
+                textColor={textColor}
+                activeBackgroundColor={theme === 'dark' ? '#2E1065' : '#F5F3FF'}
               />
               <PersonalityOption
                 label="Goal Finisher"
                 active={personality === 'finisher'}
                 onPress={() => handlePersonalityChange('finisher')}
+                borderColor={borderColor}
+                activeColor={brandColor}
+                textColor={textColor}
+                activeBackgroundColor={theme === 'dark' ? '#2E1065' : '#F5F3FF'}
               />
             </View>
           </>
         )}
 
-        <View style={styles.chatBackground}>
+        <View style={[styles.chatBackground, { backgroundColor }]}>
           <View style={styles.blobTopRight} />
           <View style={styles.blobBottomLeft} />
 
@@ -294,12 +320,12 @@ export default function ChatScreen() {
                   style={[
                     styles.bubble,
                     item.role === 'user'
-                      ? styles.userBubble
-                      : styles.aiBubble,
+                      ? { backgroundColor: brandColor, alignSelf: 'flex-end' }
+                      : { backgroundColor: aiBubbleColor, alignSelf: 'flex-start' },
                   ]}
                 >
                   <ThemedText
-                    style={item.role === 'user' ? styles.userText : undefined}
+                    style={item.role === 'user' ? styles.userText : { color: textColor }}
                   >
                     {item.text}
                   </ThemedText>
@@ -312,7 +338,7 @@ export default function ChatScreen() {
                       {QUICK_ACTIONS.map(a => (
                         <Pressable
                           key={a.id}
-                          style={styles.pill}
+                          style={[styles.pill, { backgroundColor: theme === 'dark' ? 'rgba(124,58,237,0.2)' : '#F5F3FF', borderColor: borderColor }]}
                           onPress={() => handleQuickAction(a.id)}
                         >
                           <ThemedText style={styles.pillText}>
@@ -328,13 +354,13 @@ export default function ChatScreen() {
         </View>
 
         <View style={styles.inputWrapper}>
-          <View style={styles.inputBox}>
+          <View style={[styles.inputBox, { backgroundColor: inputBackgroundColor, borderColor }]}>
             <TextInput
               value={input}
               onChangeText={setInput}
               placeholder="Ask me anything about fitness…"
-              placeholderTextColor="#94A3B8"
-              style={styles.input}
+              placeholderTextColor={placeholderColor}
+              style={[styles.input, { color: textColor }]}
               multiline
             />
             <Pressable
@@ -342,6 +368,7 @@ export default function ChatScreen() {
               disabled={!isInputValid}
               style={[
                 styles.sendButton,
+                { backgroundColor: brandColor },
                 !isInputValid && styles.sendDisabled,
               ]}
             >
@@ -358,17 +385,29 @@ function PersonalityOption({
   label,
   active,
   onPress,
+  borderColor,
+  activeColor,
+  textColor,
+  activeBackgroundColor,
 }: {
   label: string;
   active: boolean;
   onPress: () => void;
+  borderColor: string;
+  activeColor: string;
+  textColor: string;
+  activeBackgroundColor: string;
 }) {
   return (
     <Pressable
-      style={[styles.personalityOption, active && styles.personalityActive]}
+      style={[
+        styles.personalityOption,
+        { borderColor },
+        active && { borderColor: activeColor, backgroundColor: activeBackgroundColor }
+      ]}
       onPress={onPress}
     >
-      <ThemedText>{label}</ThemedText>
+      <ThemedText style={{ color: textColor }}>{label}</ThemedText>
     </Pressable>
   );
 }
