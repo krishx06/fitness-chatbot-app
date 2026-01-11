@@ -13,10 +13,29 @@ This single command installs dependencies for **both** the frontend and backend.
 npm install
 ```
 
-### 2. Start the Backend
+### 2. Configure Environment
+Create a `.env` file in the `backend` folder with the following content:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+PORT=4000
+DATABASE_URL="file:./dev.db"
+```
+
+### 3. Initialize Database
+Since the database file is not tracked in git, you must generate it locally:
+
+```bash
+# Inside backend folder
+npx prisma migrate dev
+```
+*This creates the `dev.db` file and sets up the schema.*
+
+### 4. Start the Backend
 The backend handles AI logic and database storage.
 
 ```bash
+# Return to root if needed: cd ..
 cd backend && npm run dev
 ```
 *Server runs on `http://localhost:4000`*

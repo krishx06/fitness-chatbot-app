@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
-    "start:backend": "cd backend && npm run dev",
     "postinstall": "cd backend && npm install",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
