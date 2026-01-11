@@ -3,6 +3,8 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
+import { CoinsProvider } from '@/context/CoinsContext';
+import { PersonalityProvider } from '@/context/PersonalityContext';
 import { ThemeProvider as CustomThemeProvider } from '@/context/ThemeContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -27,7 +29,11 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <CustomThemeProvider>
-      <RootLayoutNav />
+      <PersonalityProvider>
+        <CoinsProvider>
+          <RootLayoutNav />
+        </CoinsProvider>
+      </PersonalityProvider>
     </CustomThemeProvider>
   );
 }
