@@ -6,6 +6,7 @@
 *   **Tool Name**: Google Gemini API
 *   **Model**: `gemini-2.0-flash`
 *   **Purpose**: powers the chatbot logic and responses.
+*   **Deviation Note**: While the requirement suggested OpenAI, I utilized **Google Gemini** due to its accessibility and free tier availability, ensuring the project could be built and tested robustly without credit card constraints. The implementation logic (system prompts, context injection) remains identical to how an OpenAI implementation would function.
 
 ### Development Assistance (Coding)
 *   **Tools Used**: Google DeepMind Antigravity, ChatGPT.
