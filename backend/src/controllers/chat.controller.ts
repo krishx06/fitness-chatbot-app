@@ -23,6 +23,10 @@ type ChatRequestBody = {
 };
 
 
+import prisma from '../lib/prisma';
+
+// ... imports
+
 export async function handleChat(req: Request, res: Response) {
     try {
         const {
@@ -39,10 +43,30 @@ export async function handleChat(req: Request, res: Response) {
             });
         }
 
+        // Save User Message to Database
+        await prisma.message.create({
+            data: {
+                role: 'user',
+                content: message,
+                personality: personality,
+            },
+        });
+
         if (isUnsafeMedicalQuery(message)) {
+            const refusalMessage = getSafetyRefusalMessage();
+
+            // Save Refusal (Assistant Message)
+            await prisma.message.create({
+                data: {
+                    role: 'assistant',
+                    content: refusalMessage,
+                    personality: personality,
+                },
+            });
+
             return res.json({
                 success: true,
-                reply: getSafetyRefusalMessage(),
+                reply: refusalMessage,
                 aiBehavior: 'Safety Refusal',
             });
         }
@@ -65,6 +89,15 @@ export async function handleChat(req: Request, res: Response) {
             finalReply = aiReply.replace(match[0], '').trim();
             suggestions = match[1].split('|').map(s => s.trim()).filter(s => s.length > 0);
         }
+
+        // Save AI Response to Database
+        await prisma.message.create({
+            data: {
+                role: 'assistant',
+                content: finalReply,
+                personality: personality,
+            },
+        });
 
         return res.json({
             success: true,
