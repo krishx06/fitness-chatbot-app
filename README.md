@@ -1,40 +1,72 @@
-# Fitness Chatbot – Starter Template (Track A)
+# Fitness Chatbot Companion
 
-This repository is a **starter template** for the React Native assignment.
+A personalized, context-aware AI fitness chatbot built with **React Native (Expo)** and **Google Gemini AI**.
 
-## Tech Stack
-- React Native (Expo – Managed Workflow)
-- Expo SDK 50
-- Node.js 20 (LTS)
+## How to Run the App
 
-## What This Repo Contains
-- Standard Expo setup
-- Fixed folder structure
-- Version-locked environment
+This project consists of two parts: the **Frontend (App)** and the **Backend (Server)**. You must run both for the chatbot to function.
 
-## What This Repo Does NOT Contain
-- No AI logic
-- No prompt logic
-- No safety logic
-- No UI implementation
-
-All functionality must be implemented by the candidate.
-
----
-
-## Mandatory Rules
-
-- Use **Expo Managed Workflow only**
-- Do **not eject**
-- Do **not change Expo SDK version**
-- Use **Node.js 20.x**
-- Do **not commit API keys**
-- Follow provided folder structure
-
----
-
-## How Evaluators Will Run the App
+### 1. Setup (Run Once)
+This single command installs dependencies for **both** the frontend and backend.
 
 ```bash
 npm install
+```
+
+### 2. Start the Backend
+The backend handles AI logic and database storage.
+
+```bash
+cd backend && npm run dev
+```
+*Server runs on `http://localhost:4000`*
+
+### 3. Start the Frontend
+Open a new terminal window to run the React Native app.
+
+```bash
 npx expo start
+```
+*Press `i` to run on iOS Simulator or scan the QR code with Expo Go.*
+
+---
+
+## AI Logic & Prompt Composition
+
+### How Prompts are Composed
+We use a **Dynamic System Prompt** strategy. Instead of a static instruction, the system prompt is rebuilt on every request in `prompt.service.ts` using three layers:
+
+1.  **Personality Layer**: Defines the specific tone (Encourager, Creative, or Goal Finisher).
+2.  **Behavior Layer**: Appends instructions based on the user's "Journey Day" (Empathetic for beginners, Coach-like for veterans).
+3.  **Context Layer**: Injects real-time lifestyle data (steps, sleep, exercise) so the AI gets a full picture.
+
+### AI Behavior & Inputs
+The AI adapts in real-time based on:
+1.  **Personality Selection**:
+    *   *Encourager*: Supportive, gentle, uses emojis.
+    *   *Creative*: Varied, metaphorical, fun.
+    *   *Goal Finisher*: Direct, concise, results-oriented.
+2.  **App Usage Duration (Journey Day)**:
+    *   *Days 0-3*: Grounded & Empathetic. No instant remedies.
+    *   *Days 4-8*: Friendly Listener. Remedies after conversation.
+    *   *Days 9+*: Coach-like. Instant, actionable advice.
+
+### Safety Refusal Handling
+We implemented a dedicated **Safety Utility** (`safety.util.ts`) that scans user messages *before* they reach the LLM.
+*   **Trigger**: Keywords related to "pain", "injury", "medication", "doctor", "broken", "severe".
+*   **Action**: The backend intercepts the request and strictly refuses to answer, returning a pre-defined safe response: *"I am an AI, not a doctor. Please consult a professional."*
+*   **Database**: Even refusals are logged in the database for safety auditing.
+
+---
+
+## Tech Stack
+*   **Frontend**: React Native, Expo, TypeScript, React Context API.
+*   **Backend**: Node.js, Express, TypeScript, Prisma, SQLite.
+*   **AI**: Google Gemini API (`gemini-2.0-flash`).
+*   **Database**: SQLite (via Prisma ORM).
+
+## Repository Structure
+*   `/app`: Frontend screens and navigation (Expo Router).
+*   `/backend`: Node.js server and AI logic.
+*   `/context`: Global state management (Personality, Coins, Theme).
+*   `/components`: Reusable UI components.
