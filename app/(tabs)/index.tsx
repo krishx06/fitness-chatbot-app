@@ -1,5 +1,4 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { Dimensions, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,14 +8,14 @@ import { useThemeContext } from '@/context/ThemeContext';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { Ionicons } from '@expo/vector-icons';
 
+import { usePersonality } from '@/context/PersonalityContext';
+
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const router = useRouter();
   const { theme } = useThemeContext();
-  const [personality, setPersonality] = useState<
-    'encourager' | 'creative' | 'finisher'
-  >('encourager');
+  const { personality, setPersonality } = usePersonality();
 
   const backgroundColor = useThemeColor({}, 'background');
   const cardColor = useThemeColor({}, 'card');

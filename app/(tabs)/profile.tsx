@@ -12,14 +12,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Colors, Radius, Spacing } from '@/constants/theme';
+import { useThemeContext } from '@/context/ThemeContext';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
-import { useThemeContext } from '@/context/ThemeContext';
+import { useCoins } from '@/context/CoinsContext';
+import { Personality, usePersonality } from '@/context/PersonalityContext';
 
-const DAYS_USING_APP = 6;
-const XP = 1240;
+const DAYS_USING_APP = 1;
 
-type Personality = 'Encouragement Seeker' | 'Creative Explorer' | 'Goal Finisher';
+const PERSONALITY_LABELS: Record<Personality, string> = {
+    encourager: 'Encouragement Seeker',
+    creative: 'Creative Explorer',
+    finisher: 'Goal Finisher',
+};
 
 function getAIBehavior(days: number) {
     if (days <= 3) return 'Empathetic';
@@ -30,13 +35,11 @@ function getAIBehavior(days: number) {
 export default function ProfileScreen() {
     const router = useRouter();
     const { theme, toggleTheme } = useThemeContext();
+    const { personality, setPersonality } = usePersonality();
+    const { coins } = useCoins();
 
     const darkModeEnabled = theme === 'dark';
-    // Removed local state setDarkModeEnabled in favor of context toggle
-    const [personality, setPersonality] =
-        useState<Personality>('Encouragement Seeker');
-    const [personalityModalVisible, setPersonalityModalVisible] =
-        useState(false);
+    const [personalityModalVisible, setPersonalityModalVisible] = useState(false);
 
     const aiBehavior = getAIBehavior(DAYS_USING_APP);
 
@@ -72,7 +75,7 @@ export default function ProfileScreen() {
                     />
                     <ThemedText type="subtitle">Guest</ThemedText>
                     <ThemedText style={[styles.subText, { color: textSecondaryColor }]}>
-                        Day {DAYS_USING_APP} • {XP} XP
+                        Day {DAYS_USING_APP} • {coins} Coins
                     </ThemedText>
                 </View>
 
@@ -89,7 +92,7 @@ export default function ProfileScreen() {
                     </View>
 
                     <ThemedText style={[styles.cardValue, { color: textSecondaryColor }]}>
-                        {personality}
+                        {PERSONALITY_LABELS[personality]}
                     </ThemedText>
 
                     <Pressable
@@ -115,8 +118,8 @@ export default function ProfileScreen() {
                     </View>
 
                     <View style={styles.statsRow}>
-                        <Stat label="XP" value={`${XP}`} />
-                        <Stat label="Streak" value={`${DAYS_USING_APP} days`} />
+                        <Stat label="Coins" value={`${coins}`} />
+                        <Stat label="Journey Day" value={`${DAYS_USING_APP}`} />
                         <Stat label="AI Behavior" value={aiBehavior} />
                     </View>
                 </View>
@@ -137,6 +140,7 @@ export default function ProfileScreen() {
                 </View>
             </View>
 
+
             {personalityModalVisible && (
                 <>
                     <Pressable
@@ -147,9 +151,9 @@ export default function ProfileScreen() {
                     <View style={[styles.personalityModal, { backgroundColor: cardColor }]}>
                         <PersonalityOption
                             label="Encouragement Seeker"
-                            active={personality === 'Encouragement Seeker'}
+                            active={personality === 'encourager'}
                             onPress={() => {
-                                setPersonality('Encouragement Seeker');
+                                setPersonality('encourager');
                                 setPersonalityModalVisible(false);
                             }}
                             borderColor={borderColor}
@@ -159,9 +163,9 @@ export default function ProfileScreen() {
 
                         <PersonalityOption
                             label="Creative Explorer"
-                            active={personality === 'Creative Explorer'}
+                            active={personality === 'creative'}
                             onPress={() => {
-                                setPersonality('Creative Explorer');
+                                setPersonality('creative');
                                 setPersonalityModalVisible(false);
                             }}
                             borderColor={borderColor}
@@ -171,9 +175,9 @@ export default function ProfileScreen() {
 
                         <PersonalityOption
                             label="Goal Finisher"
-                            active={personality === 'Goal Finisher'}
+                            active={personality === 'finisher'}
                             onPress={() => {
-                                setPersonality('Goal Finisher');
+                                setPersonality('finisher');
                                 setPersonalityModalVisible(false);
                             }}
                             borderColor={borderColor}

@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   TextInput,
   View,
@@ -15,6 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedText } from '@/components/themed-text';
 import { Colors, Spacing } from '@/constants/theme';
+import { useCoins } from '@/context/CoinsContext';
+import { Personality, usePersonality } from '@/context/PersonalityContext';
 import { useThemeContext } from '@/context/ThemeContext';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
@@ -24,7 +27,7 @@ type Message = {
   role: 'user' | 'assistant';
 };
 
-type Personality = 'encourager' | 'creative' | 'finisher';
+
 
 type ChatHistoryItem = {
   id: string;
@@ -32,11 +35,18 @@ type ChatHistoryItem = {
   messages: Message[];
 };
 
-const QUICK_ACTIONS = [
-  { id: 'warmup', label: 'Warm-up' },
-  { id: 'beginner', label: 'Beginner Plan' },
-  { id: 'diet', label: 'Diet Tips' },
-];
+const INITIAL_QUICK_ACTIONS = ['Warm-up', 'Beginner Plan', 'Diet Tips'];
+
+const API_URL = 'http://localhost:4000/chat';
+
+const mapPersonalityToBackend = (p: Personality): string => {
+  switch (p) {
+    case 'encourager': return 'encouragement_seeker';
+    case 'creative': return 'creative_explorer';
+    case 'finisher': return 'goal_finisher';
+    default: return 'encouragement_seeker';
+  }
+};
 
 const getInitialMessage = (p: Personality): Message => ({
   id: Date.now().toString(),
@@ -49,22 +59,25 @@ const getInitialMessage = (p: Personality): Message => ({
         : 'I’m here to support you every step',
 });
 
+
 export default function ChatScreen() {
   const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
 
-  const [personality, setPersonality] =
-    useState<Personality>('encourager');
+  const { personality, setPersonality } = usePersonality();
+  const { coins, addCoins } = useCoins();
+
   const [messages, setMessages] = useState<Message[]>([
-    getInitialMessage('encourager'),
+    getInitialMessage(personality),
   ]);
+  const [quickActions, setQuickActions] = useState<string[]>(INITIAL_QUICK_ACTIONS);
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [input, setInput] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [personalityVisible, setPersonalityVisible] = useState(false);
   const [xpInfoVisible, setXpInfoVisible] = useState(false);
-  const [xp, setXp] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { theme } = useThemeContext();
   const backgroundColor = useThemeColor({}, 'background');
@@ -78,7 +91,7 @@ export default function ChatScreen() {
   const inputBackgroundColor = theme === 'dark' ? '#1C1F23' : '#FFFFFF';
   const placeholderColor = theme === 'dark' ? '#9BA1A6' : '#94A3B8';
 
-  const isInputValid = input.trim().length > 0;
+  const isInputValid = input.trim().length > 0 && !isLoading;
 
   const lastAssistantIndex = [...messages]
     .reverse()
@@ -89,46 +102,89 @@ export default function ChatScreen() {
     flatListRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
-  const handleSend = () => {
-    if (!isInputValid) return;
+  useEffect(() => {
+    if (messages.length === 1 && messages[0].role === 'assistant') {
+      setMessages([getInitialMessage(personality)]);
+    }
+  }, [personality]);
 
+  const sendMessageToBackend = async (userText: string) => {
+    // Optimistic UI update
     setMessages(prev => [
       ...prev,
-      { id: Date.now().toString(), role: 'user', text: input.trim() },
+      { id: Date.now().toString(), role: 'user', text: userText },
     ]);
 
-    setXp(prev => prev + 1);
-    setInput('');
+    setIsLoading(true);
+    addCoins(1);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userText,
+          personality: mapPersonalityToBackend(personality),
+          daysUsingApp: 6,
+          lifestyle: {
+            steps: 5432,
+            exerciseMinutes: 45,
+            sleepHours: 7.5,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (data.suggestions && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+          setQuickActions(data.suggestions);
+        }
+
+        setMessages(prev => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: 'assistant',
+            text: data.reply,
+          },
+        ]);
+      } else {
+        setMessages(prev => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: 'assistant',
+            text: 'Sorry, I encountered an error. Please try again.',
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error('Chat API Error:', error);
       setMessages(prev => [
         ...prev,
         {
-          id: Math.random().toString(),
+          id: Date.now().toString(),
           role: 'assistant',
-          text: 'Got it! Let’s work on that together',
+          text: 'Network error. Please make sure the backend is running.',
         },
       ]);
-    }, 500);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleQuickAction = (type: string) => {
-    const response =
-      type === 'warmup'
-        ? 'Here’s a quick warm-up:\n• Neck rolls\n• Arm swings\n• Light stretches'
-        : type === 'beginner'
-          ? 'Beginner plan:\n• 20 min walk\n• Bodyweight squats\n• Stretching'
-          : 'Diet tips:\n• Stay hydrated\n• Balanced meals\n• Avoid sugary snacks';
+  const handleSend = () => {
+    if (!isInputValid) return;
+    const text = input.trim();
+    setInput('');
+    sendMessageToBackend(text);
+  };
 
-    setMessages(prev => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        role: 'user',
-        text: QUICK_ACTIONS.find(a => a.id === type)?.label || '',
-      },
-      { id: Math.random().toString(), role: 'assistant', text: response },
-    ]);
+  const handleQuickAction = (action: string) => {
+    sendMessageToBackend(action);
   };
 
   const handleNewChat = () => {
@@ -175,8 +231,8 @@ export default function ChatScreen() {
           <View style={styles.headerRight}>
             <Pressable onPress={() => setXpInfoVisible(v => !v)}>
               <View style={[styles.xpBadge, { backgroundColor: theme === 'dark' ? 'rgba(124,58,237,0.2)' : '#F5F3FF' }]}>
-                <Ionicons name="flash" size={14} color="#7C3AED" />
-                <ThemedText style={styles.xpText}>{xp}</ThemedText>
+                <MaterialIcons name="monetization-on" size={14} color="#7C3AED" />
+                <ThemedText style={styles.xpText}>{coins}</ThemedText>
               </View>
             </Pressable>
 
@@ -193,9 +249,9 @@ export default function ChatScreen() {
               onPress={() => setXpInfoVisible(false)}
             />
             <View style={[styles.xpTooltip, { backgroundColor: cardColor, borderColor }]}>
-              <Ionicons name="flash" size={16} color="#7C3AED" />
+              <MaterialIcons name="monetization-on" size={16} color="#7C3AED" />
               <ThemedText style={styles.xpTipText}>
-                You earn 1 XP for every question you ask. Stay consistent 💪
+                You earn 1 Coin for every question you ask. Stay consistent 💪
               </ThemedText>
             </View>
           </>
@@ -334,19 +390,24 @@ export default function ChatScreen() {
                 {item.role === 'assistant' &&
                   index === messages.length - 1 &&
                   showPills && (
-                    <View style={styles.pillsRow}>
-                      {QUICK_ACTIONS.map(a => (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      style={styles.pillsScroll}
+                      contentContainerStyle={styles.pillsContainer}
+                    >
+                      {quickActions.map((action, idx) => (
                         <Pressable
-                          key={a.id}
+                          key={`${action}-${idx}`}
                           style={[styles.pill, { backgroundColor: theme === 'dark' ? 'rgba(124,58,237,0.2)' : '#F5F3FF', borderColor: borderColor }]}
-                          onPress={() => handleQuickAction(a.id)}
+                          onPress={() => handleQuickAction(action)}
                         >
                           <ThemedText style={styles.pillText}>
-                            {a.label}
+                            {action}
                           </ThemedText>
                         </Pressable>
                       ))}
-                    </View>
+                    </ScrollView>
                   )}
               </>
             )}
@@ -372,7 +433,7 @@ export default function ChatScreen() {
                 !isInputValid && styles.sendDisabled,
               ]}
             >
-              <Ionicons name="arrow-up" size={18} color="#FFF" />
+              <Ionicons name={isLoading ? "ellipsis-horizontal" : "arrow-up"} size={18} color="#FFF" />
             </Pressable>
           </View>
         </View>
@@ -558,11 +619,15 @@ const styles = StyleSheet.create({
   },
   userText: { color: '#FFF' },
 
-  pillsRow: {
-    flexDirection: 'row',
-    gap: 6,
+  pillsScroll: {
     marginTop: 6,
-    marginLeft: 4,
+    flexGrow: 0,
+  },
+  pillsContainer: {
+    paddingHorizontal: 4,
+    gap: 8,
+    paddingRight: 20,
+    alignItems: 'center',
   },
   pill: {
     paddingHorizontal: 12,
