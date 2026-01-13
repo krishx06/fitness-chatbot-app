@@ -109,7 +109,6 @@ export default function ChatScreen() {
   }, [personality]);
 
   const sendMessageToBackend = async (userText: string) => {
-    // Optimistic UI update
     setMessages(prev => [
       ...prev,
       { id: Date.now().toString(), role: 'user', text: userText },
@@ -251,7 +250,7 @@ export default function ChatScreen() {
             <View style={[styles.xpTooltip, { backgroundColor: cardColor, borderColor }]}>
               <MaterialIcons name="monetization-on" size={16} color="#7C3AED" />
               <ThemedText style={styles.xpTipText}>
-                You earn 1 Coin for every question you ask. Stay consistent 💪
+                You earn 1 Coin for every question you ask. Stay consistent 
               </ThemedText>
             </View>
           </>

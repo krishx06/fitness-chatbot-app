@@ -43,7 +43,6 @@ export default function ProfileScreen() {
 
     const aiBehavior = getAIBehavior(DAYS_USING_APP);
 
-    // --- THEME COLORS ---
     const backgroundColor = useThemeColor({}, 'background');
     const textColor = useThemeColor({}, 'text');
     const iconColor = useThemeColor({}, 'icon');

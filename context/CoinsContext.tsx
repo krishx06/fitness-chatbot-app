@@ -9,7 +9,7 @@ interface CoinsContextType {
 const CoinsContext = createContext<CoinsContextType | undefined>(undefined);
 
 export function CoinsProvider({ children }: { children: ReactNode }) {
-    const [coins, setCoins] = useState<number>(0); // Initial value reset to 0
+    const [coins, setCoins] = useState<number>(0); 
 
     const addCoins = (amount: number) => {
         setCoins(prev => prev + amount);

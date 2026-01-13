@@ -1,7 +1,6 @@
 
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 
-// Unified Personality type
 export type Personality = 'encourager' | 'creative' | 'finisher';
 
 interface PersonalityContextType {
