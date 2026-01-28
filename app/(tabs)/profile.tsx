@@ -69,7 +69,7 @@ export default function ProfileScreen() {
 
                 <View style={[styles.profileCard, { backgroundColor: cardColor }]}>
                     <Image
-                        source={require('@/assets/images/logo.jpg')}
+                        source={require('@/assets/images/logo2.png')}
                         style={styles.avatar}
                     />
                     <ThemedText type="subtitle">Guest</ThemedText>

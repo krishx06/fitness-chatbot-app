@@ -222,7 +222,7 @@ export default function ChatScreen() {
 
           <View style={styles.logoWrapper} pointerEvents="none">
             <Image
-              source={require('@/assets/images/logo.jpg')}
+              source={require('@/assets/images/logo2.png')}
               style={styles.logo}
             />
           </View>
@@ -250,7 +250,7 @@ export default function ChatScreen() {
             <View style={[styles.xpTooltip, { backgroundColor: cardColor, borderColor }]}>
               <MaterialIcons name="monetization-on" size={16} color="#7C3AED" />
               <ThemedText style={styles.xpTipText}>
-                You earn 1 Coin for every question you ask. Stay consistent 
+                You earn 1 Coin for every question you ask. Stay consistent
               </ThemedText>
             </View>
           </>

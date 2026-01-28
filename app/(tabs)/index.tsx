@@ -37,13 +37,13 @@ export default function HomeScreen() {
           <View style={styles.hero}>
             <View style={styles.heroGraphicContainer}>
               <Image
-                source={require('@/assets/images/logo.jpg')}
+                source={require('@/assets/images/logo2.png')}
                 style={styles.heroLogo}
               />
             </View>
 
             <View style={styles.heroTextContent}>
-              <ThemedText style={styles.brandName}>NextYou</ThemedText>
+              <ThemedText style={styles.brandName}>AdaptFit</ThemedText>
               <ThemedText style={[styles.heroHeadline, { color: textColor }]}>
                 Discover Your Next{'\n'}Best Version
               </ThemedText>
