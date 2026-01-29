@@ -2,7 +2,7 @@
 
 A personalized, context-aware AI fitness chatbot built with **React Native (Expo)** and **Google Gemini AI**.
 
-#### Demo Video: [Click here](https://drive.google.com/file/d/1fpMqMM4K1l7L_CqZBZ0sgpAAlT1sZgmC/view?usp=sharing)
+#### Demo Video: [Click here](https://drive.google.com/file/d/19zukEl-GswEhjOK1vqPWQNdPi5mECO-y/view?usp=sharing)
 
 
 ## How to Run the App
