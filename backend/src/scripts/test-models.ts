@@ -2,37 +2,43 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from 'groq-sdk';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
 
-async function listModels() {
+async function testModels() {
     try {
-        console.log('Testing gemini-pro...');
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-        const result = await model.generateContent('Hello');
-        console.log('Success with gemini-pro:', await result.response.text());
+        console.log('Testing llama-3.3-70b-versatile...');
+        const result = await groq.chat.completions.create({
+            messages: [{ role: 'user', content: 'Hello' }],
+            model: 'llama-3.3-70b-versatile',
+        });
+        console.log('Success with llama-3.3-70b-versatile:', result.choices[0]?.message?.content);
     } catch (error: any) {
-        console.error('Error with gemini-pro:', error.message);
+        console.error('Error with llama-3.3-70b-versatile:', error.message);
     }
 
     try {
-        console.log('Testing gemini-1.5-flash...');
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-        const result = await model.generateContent('Hello');
-        console.log('Success with gemini-1.5-flash:', await result.response.text());
+        console.log('Testing llama-3.1-8b-instant...');
+        const result = await groq.chat.completions.create({
+            messages: [{ role: 'user', content: 'Hello' }],
+            model: 'llama-3.1-8b-instant',
+        });
+        console.log('Success with llama-3.1-8b-instant:', result.choices[0]?.message?.content);
     } catch (error: any) {
-        console.error('Error with gemini-1.5-flash:', error.message);
+        console.error('Error with llama-3.1-8b-instant:', error.message);
     }
 
     try {
-        console.log('Testing gemini-1.5-flash-latest...');
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
-        const result = await model.generateContent('Hello');
-        console.log('Success with gemini-1.5-flash-latest:', await result.response.text());
+        console.log('Testing mixtral-8x7b-32768...');
+        const result = await groq.chat.completions.create({
+            messages: [{ role: 'user', content: 'Hello' }],
+            model: 'mixtral-8x7b-32768',
+        });
+        console.log('Success with mixtral-8x7b-32768:', result.choices[0]?.message?.content);
     } catch (error: any) {
-        console.error('Error with gemini-1.5-flash-latest:', error.message);
+        console.error('Error with mixtral-8x7b-32768:', error.message);
     }
 }
 
-listModels();
+testModels();

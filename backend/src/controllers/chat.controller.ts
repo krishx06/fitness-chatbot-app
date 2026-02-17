@@ -1,7 +1,7 @@
 
 import { Request, Response } from 'express';
 
-import { getAIResponse } from '../services/gemini.service';
+import { getAIResponse } from '../services/groq.service';
 import { buildSystemPrompt } from '../services/prompt.service';
 
 import {

@@ -1,6 +1,6 @@
 # Fitness Chatbot Companion
 
-A personalized, context-aware AI fitness chatbot built with **React Native (Expo)** and **Google Gemini AI**.
+A personalized, context-aware AI fitness chatbot built with **React Native (Expo)** and **Groq AI (LLaMA)**.
 
 #### Demo Video: [Click here](https://drive.google.com/file/d/19zukEl-GswEhjOK1vqPWQNdPi5mECO-y/view?usp=sharing)
 
@@ -20,7 +20,7 @@ npm install
 Create a `.env` file in the `backend` folder with the following content:
 
 ```env
-GEMINI_API_KEY=your_gemini_api_key_here
+GROQ_API_KEY=your_groq_api_key_here
 PORT=4000
 DATABASE_URL="file:./dev.db"
 ```
@@ -84,7 +84,7 @@ We implemented a dedicated **Safety Utility** (`safety.util.ts`) that scans user
 ## Tech Stack
 *   **Frontend**: React Native, Expo, TypeScript, React Context API.
 *   **Backend**: Node.js, Express, TypeScript, Prisma, SQLite.
-*   **AI**: Google Gemini API (`gemini-2.0-flash`).
+*   **AI**: Groq API (`llama-3.3-70b-versatile`).
 *   **Database**: SQLite (via Prisma ORM).
 
 ## Repository Structure

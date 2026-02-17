@@ -3,10 +3,10 @@
 ## 1. Generative AI Tools Used
 
 ### Integrated into App (Runtime)
-*   **Tool Name**: Google Gemini API
-*   **Model**: `gemini-2.0-flash`
-*   **Purpose**: powers the chatbot logic and responses.
-*   **Deviation Note**: While the requirement suggested OpenAI, I utilized **Google Gemini** due to its accessibility and free tier availability, ensuring the project could be built and tested robustly without credit card constraints. The implementation logic (system prompts, context injection) remains identical to how an OpenAI implementation would function.
+*   **Tool Name**: Groq API
+*   **Model**: `llama-3.3-70b-versatile`
+*   **Purpose**: Powers the chatbot logic and responses.
+*   **Deviation Note**: While the requirement suggested OpenAI, I utilized **Groq** (running LLaMA models) due to its fast inference speed and generous free tier availability, ensuring the project could be built and tested robustly without credit card constraints. The implementation logic (system prompts, context injection) remains identical to how an OpenAI implementation would function.
 
 ### Development Assistance (Coding)
 *   **Tools Used**: Google DeepMind Antigravity, ChatGPT.
